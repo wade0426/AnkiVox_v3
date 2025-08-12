@@ -38,60 +38,128 @@ class GeminiAnkiTTS:
         print("\n--- Gemini Anki TTS ---")
         print("按 Enter 將檔案移動到Anki資料夾，'s' 進入設定，'c'複製 Prompt，'q' 退出。")
     
-    def setup_config(self):
-        """設定模式"""
-        print("\n=== 設定模式 ===")
-        config = self.load_config()
-        
-        # 來源檔案路徑
-        current_source = config.get("source_path", self.default_config["source_path"])
-        new_source = input(f"來源檔案路徑 (目前: {current_source}): ").strip()
-        if new_source:
-            config["source_path"] = new_source
-        
-        # FFmpeg 執行檔路徑
-        current_ffmpeg = config.get("ffmpeg_path", self.default_config["ffmpeg_path"])
-        new_ffmpeg = input(f"FFmpeg 執行檔路徑 (目前: {current_ffmpeg}): ").strip()
-        if new_ffmpeg:
-            config["ffmpeg_path"] = new_ffmpeg
-        
-        # Anki 媒體資料夾路徑
-        current_anki = config.get("anki_media_path", self.default_config["anki_media_path"])
-        new_anki = input(f"Anki 媒體資料夾路徑 (目前: {current_anki}): ").strip()
-        if new_anki:
-            config["anki_media_path"] = new_anki
-        
-        # 音訊格式
-        current_format = config.get("audio_format", self.default_config["audio_format"])
-        while True:
-            new_format = input(f"音訊格式 (mp3/wav, 目前: {current_format}): ").strip().lower()
-            if not new_format:
-                break
-            if new_format in ["mp3", "wav"]:
-                config["audio_format"] = new_format
-                break
+    def show_config_menu(self, config):
+        """顯示設定選單"""
+        print("\n=== 設定頁面 ===")
+        print("目前設定：")
+        print(f"1. 來源檔案路徑：{config.get('source_path', self.default_config['source_path'])}")
+        print(f"2. FFmpeg 執行檔路徑：{config.get('ffmpeg_path', self.default_config['ffmpeg_path'])}")
+        print(f"3. Anki 媒體資料夾路徑：{config.get('anki_media_path', self.default_config['anki_media_path'])}")
+        print(f"4. 音訊格式：{config.get('audio_format', self.default_config['audio_format'])}")
+        print(f"5. 播放速度：{config.get('playback_speed', self.default_config['playback_speed'])}")
+        print("\n請輸入數字選擇要修改的設定，或按 'b' 返回主頁面")
+    
+    def modify_setting(self, config, setting_number):
+        """修改特定設定項目"""
+        if setting_number == 1:
+            # 來源檔案路徑
+            current_value = config.get("source_path", self.default_config["source_path"])
+            print(f"\n修改來源檔案路徑")
+            print(f"目前值：{current_value}")
+            new_value = input("請輸入新的來源檔案路徑（留空保持不變）: ").strip()
+            if new_value:
+                config["source_path"] = new_value
+                print("✅ 來源檔案路徑已更新")
             else:
-                print("請輸入 'mp3' 或 'wav'")
-        
-        # 播放速度
-        current_speed = config.get("playback_speed", self.default_config["playback_speed"])
-        while True:
-            speed_input = input(f"播放速度 (例如: 1.0=原速, 1.2=加速, 0.8=減速, 目前: {current_speed}): ").strip()
-            if not speed_input:
-                break
-            try:
-                new_speed = float(speed_input)
-                if 0.1 <= new_speed <= 3.0:  # 合理的速度範圍
-                    config["playback_speed"] = new_speed
+                print("保持原設定不變")
+                
+        elif setting_number == 2:
+            # FFmpeg 執行檔路徑
+            current_value = config.get("ffmpeg_path", self.default_config["ffmpeg_path"])
+            print(f"\n修改 FFmpeg 執行檔路徑")
+            print(f"目前值：{current_value}")
+            new_value = input("請輸入新的 FFmpeg 執行檔路徑（留空保持不變）: ").strip()
+            if new_value:
+                config["ffmpeg_path"] = new_value
+                print("✅ FFmpeg 執行檔路徑已更新")
+            else:
+                print("保持原設定不變")
+                
+        elif setting_number == 3:
+            # Anki 媒體資料夾路徑
+            current_value = config.get("anki_media_path", self.default_config["anki_media_path"])
+            print(f"\n修改 Anki 媒體資料夾路徑")
+            print(f"目前值：{current_value}")
+            new_value = input("請輸入新的 Anki 媒體資料夾路徑（留空保持不變）: ").strip()
+            if new_value:
+                config["anki_media_path"] = new_value
+                print("✅ Anki 媒體資料夾路徑已更新")
+            else:
+                print("保持原設定不變")
+                
+        elif setting_number == 4:
+            # 音訊格式
+            current_value = config.get("audio_format", self.default_config["audio_format"])
+            print(f"\n修改音訊格式")
+            print(f"目前值：{current_value}")
+            while True:
+                new_value = input("請輸入新的音訊格式 (mp3/wav，留空保持不變): ").strip().lower()
+                if not new_value:
+                    print("保持原設定不變")
+                    break
+                if new_value in ["mp3", "wav"]:
+                    config["audio_format"] = new_value
+                    print("✅ 音訊格式已更新")
                     break
                 else:
-                    print("播放速度請設定在 0.1 到 3.0 之間")
-            except ValueError:
-                print("請輸入有效的數字")
+                    print("❌ 請輸入 'mp3' 或 'wav'")
+                    
+        elif setting_number == 5:
+            # 播放速度
+            current_value = config.get("playback_speed", self.default_config["playback_speed"])
+            print(f"\n修改播放速度")
+            print(f"目前值：{current_value}")
+            print("說明：1.0=原速, 1.2=加速20%, 0.8=減速20%")
+            while True:
+                speed_input = input("請輸入新的播放速度 (0.1-3.0，留空保持不變): ").strip()
+                if not speed_input:
+                    print("保持原設定不變")
+                    break
+                try:
+                    new_speed = float(speed_input)
+                    if 0.1 <= new_speed <= 3.0:
+                        config["playback_speed"] = new_speed
+                        print("✅ 播放速度已更新")
+                        break
+                    else:
+                        print("❌ 播放速度請設定在 0.1 到 3.0 之間")
+                except ValueError:
+                    print("❌ 請輸入有效的數字")
+    
+    def setup_config(self):
+        """設定模式 - 新的互動式設定介面"""
+        config = self.load_config()
         
-        # 儲存設定
-        self.save_config(config)
-        print("設定已儲存！")
+        while True:
+            self.show_config_menu(config)
+            
+            try:
+                user_choice = input("請選擇: ").strip().lower()
+                
+                if user_choice == 'b':
+                    # 儲存設定並返回主頁面
+                    self.save_config(config)
+                    print("設定已儲存，返回主頁面")
+                    break
+                elif user_choice.isdigit():
+                    choice_num = int(user_choice)
+                    if 1 <= choice_num <= 5:
+                        self.modify_setting(config, choice_num)
+                        # 修改完成後暫停一下讓使用者看到確認訊息
+                        input("\n按 Enter 繼續...")
+                    else:
+                        print("❌ 請輸入 1-5 的數字或 'b'")
+                        input("按 Enter 繼續...")
+                else:
+                    print("❌ 請輸入 1-5 的數字或 'b'")
+                    input("按 Enter 繼續...")
+                    
+            except ValueError:
+                print("❌ 輸入格式錯誤，請重新輸入")
+                input("按 Enter 繼續...")
+            except KeyboardInterrupt:
+                print("\n設定已取消，返回主頁面")
+                break
     
     def generate_filename(self, audio_format):
         """生成帶時間戳記的檔名"""
